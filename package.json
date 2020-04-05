@@ -1,0 +1,13 @@
+{
+  "name": "scrapelet",
+  "version": "0.1.0",
+  "description": "Simple bookmarklet used to circumvent scraping protections and save property information to a Google Sheet",
+  "scripts": {
+    "build": "terser src/config.js src/index.js --compress \"expression=true\" --mangle --wrap scrape -b \"beautify=false,preamble='javascript:'\" --output dist/scrapelet.js"
+  },
+  "author": "Will Robertson <contact@willrobertson.id.au>",
+  "license": "ISC",
+  "dependencies": {
+    "terser": "^4.3.8"
+  }
+}
