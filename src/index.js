@@ -1,4 +1,10 @@
-
+/**
+ * Submits data to an HTTP endpoint. 
+ * 
+ * Creates an IFRAME, which bypasses some CSRF protections (rather than an XHR).
+ * 
+ * @param {string} data Scraped data to send the configured endpoint
+ */
 function crossDomainPost(data) {
 
     if(!data) {
@@ -46,17 +52,25 @@ function crossDomainPost(data) {
     let form = document.createElement("form");
     form.target = uniqueString;
     form.id = formID;
-    form.action = `https://script.google.com/macros/s/${config.scriptId}/exec`;
-    form.method = "GET";
+    form.action = config.action;
+    form.method = config.method;
 
-    form.appendChild(makeinput("method", "sendDOM"));
     form.appendChild(makeinput("from", window.location.href));
-    form.appendChild(makeinput("domData", data));
+    form.appendChild(makeinput("scrapeData", data));
+
+    for (const [key, value] of Object.entries(config.extraParams)) {
+        form.appendChild(makeinput(key, value));
+    }
 
     document.body.appendChild(form);
     form.submit();
 }
 
+/**
+ * Returns the currently selected page elements as HTML markup
+ * 
+ * @return {string}    HTML of selected elements
+ */
 function getSelectionHTML() {
     let html = "";
     if (typeof window.getSelection != "undefined") {
@@ -76,25 +90,32 @@ function getSelectionHTML() {
     return html;
 }
 
+/**
+ * Finds data to send and calls crossDomainPost on the found data.
+ * 
+ * Data to send is selected in the following order:
+ *   1. Page selection
+ *   2. Configured CSS selector
+ *   3. Manually input CSS selector
+ */
 function collectData() {
 
-    let selector = prompt("Enter CSS selector of Element to scrape");
-    let infoBanner = document.querySelector(selector);
-
-    let html = "";
-    if(infoBanner) {
-        console.log("Reading", infoBanner);
-        html = infoBanner.innerHTML;
-    } else {
-        html = getSelectionHTML();
-    }
-    
+    let html = getSelectionHTML();
     if(html) {
-        console.log("Sending to gsheets...");
+        console.log("Sending selection");
         crossDomainPost(html);
     } else {
-        console.error("Couldn't find element, and nothing selected to send");
-        alert("Couldn't find element, and nothing selected to send");
+        let selector = config.defaultSelector || prompt("Enter the CSS selector of the item to scrape", "body");
+        let infoBanner = document.querySelector(selector);
+        if(infoBanner) {
+            console.log("Sending element:", infoBanner);
+            html = infoBanner.innerHTML;
+            crossDomainPost(html);
+        } else {
+            let message = `Couldn't find '${selector}' element, and nothing selected to send`;
+            console.error(message);
+            alert(message);
+        }
     }
 
 }

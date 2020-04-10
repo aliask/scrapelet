@@ -1,3 +1,8 @@
 const config = {
-  scriptId: "Follow instructions at https://developers.google.com/apps-script/guides/web"
+  action: "Follow instructions at https://developers.google.com/apps-script/guides/web to set up scraping to Google Sheets",
+  method: "GET",
+  extraParams: {
+    "method": "sendDOM"
+  },
+  defaultSelector: ".hero-poster"
 };

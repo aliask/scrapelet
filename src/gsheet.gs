@@ -11,7 +11,7 @@ function doGet(e) {
   
   if(method === "sendDOM") {
     // Take the input data and sort through it. Then insert it into Google Sheets.
-    let result = parseInput(e.parameter.domData, e.parameter.from);
+    let result = parseInput(e.parameter.scrapeData, e.parameter.from);
     let output = HtmlService.createHtmlOutput(`
         <link rel="stylesheet" href="bootstrap.min.css" crossorigin="anonymous">
         <script src="fontawesome.js" crossorigin="anonymous"></script>
@@ -25,4 +25,36 @@ function doGet(e) {
     output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     return output;
   }
+}
+
+function parseInput(scrapeData, from) {
+  let row = [];
+  let output = {
+    success: false,
+    message: "Could not read data"
+  };
+
+  let regexResult = scrapeData.match(/(\d+) bedrooms?/);
+  if(regexResult && regexResult.length == 2) {
+    row.push(regexResult[1]);
+  } else {
+    return output;
+  }
+
+  // ... fill the rest of the info
+
+  let ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("Sheet 1");
+
+  let Avals = ss.getRange("A1:A").getValues();
+  let Alast = Avals.filter(String).length;
+  let newRow = Alast + 1;
+
+  sheet.getRange(newRow, 1, 1, row.length).setValues([ row ]);
+
+  output = {
+    success: true,
+    message: "Added property to spreadsheet"
+  }
+  return output;
 }
