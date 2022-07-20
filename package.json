@@ -8,6 +8,6 @@
   "author": "Will Robertson <contact@willrobertson.id.au>",
   "license": "ISC",
   "dependencies": {
-    "terser": "^4.3.8"
+    "terser": "^4.8.1"
   }
 }
